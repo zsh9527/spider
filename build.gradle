@@ -1,0 +1,98 @@
+plugins {
+    id("java")
+    id("application")
+    id("org.springframework.boot") version "3.0.2"
+    id("io.spring.dependency-management") version "1.1.0"
+}
+
+group = "com.zsh"
+version = "1.0.0-${releaseTime()}-SNAPSHOT"
+java.sourceCompatibility = JavaVersion.VERSION_17
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    maven {
+        allowInsecureProtocol = true
+        url 'http://maven.aliyun.com/nexus/content/groups/public/'
+    }
+    maven { url 'https://jitpack.io' }
+    mavenCentral()
+}
+
+dependencies {
+    implementation("org.springframework.boot:spring-boot-starter-aop")
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("com.squareup.okhttp3:okhttp:4.10.0")
+    implementation("org.apache.commons:commons-lang3")
+    implementation("org.jsoup:jsoup:1.15.4")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("io.github.resilience4j:resilience4j-spring-boot2:2.0.2")
+    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+    implementation("com.github.shibing624:similarity:1.1.6")  {
+        exclude group: "org.mockito"
+    }
+    implementation 'info.debatty:java-string-similarity:2.0.0'
+    compileOnly("org.projectlombok:lombok")
+    annotationProcessor("org.projectlombok:lombok")
+    // 此处注意和idea的h2 driver版本一致
+    runtimeOnly("com.h2database:h2:1.4.200")
+    runtimeOnly("org.springframework.boot:spring-boot-devtools")
+    testCompileOnly("org.projectlombok:lombok")
+    testAnnotationProcessor("org.projectlombok:lombok")
+    // 此处声明必须在lombok后
+    implementation("org.mapstruct:mapstruct:1.5.3.Final")
+    annotationProcessor("org.mapstruct:mapstruct-processor:1.5.3.Final")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+}
+
+tasks.withType(Test) {
+    systemProperty("spring.profiles.active", "unittest, dev")
+    useJUnitPlatform()
+}
+
+/**
+ *  版本时间
+ */
+private static String releaseTime() {
+    return new java.text.SimpleDateFormat("yyyyMMddHHmmss").format(new Date())
+}
+
+// https://github.com/gradle/gradle/issues/1989
+// 命令行太长解决方法 set CLASSPATH=%APP_HOME%\lib\*
+application {
+    mainClass = 'com.zsh.spider.SpiderApplication'
+    applicationDefaultJvmArgs = [
+            '-Dfile.encoding=GBK',
+            "-Dspring.profiles.active=prod",
+            '-Dspring.config.additional-location=../config/'
+    ]
+}
+
+// https://github.com/Guardsquare/proguard/blob/7160a9e48490a09f8b1ba92dfbb2c4293c71577a/examples/application/build.gradle
+task replaceBatContent(type: Copy) {
+    group("distribution")
+    def replaceFile = 'build/install/' + getApplicationName() + "/bin/" + getApplicationName() + '.bat'
+    def tempFile = 'build/install_temp/' + getApplicationName() + '.bat'
+    from(replaceFile)
+    into new File(tempFile).parent
+    filter { line ->
+        line.replaceAll('set CLASSPATH=.*', 'set CLASSPATH=%APP_HOME%\\\\lib\\\\*')
+    }
+    doLast {
+        // add pause for debug
+        def tempFileWriter = new FileWriter(tempFile, true)
+        tempFileWriter.append('\npause\n')
+        tempFileWriter.close()
+        copy {
+            from(tempFile)
+            into new File(replaceFile).parent
+        }
+    }
+}
+
+installDist.finalizedBy replaceBatContent

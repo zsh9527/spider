@@ -1,0 +1,51 @@
+2024-05-10 18:03:54 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "spider_task" not found; SQL statement:
+    select t1.* from `spider_task` t1
+    where id in (
+        select t.id
+        from `spider_task` t
+        where
+            1 = 1
+        order by t.score desc
+        limit ?
+    )
+ [42102-200]
+2024-05-10 18:03:59 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "spider_task" not found; SQL statement:
+    select t1.* from `spider_task` t1
+    where id in (
+        select t.id
+        from `spider_task` t
+        where
+            1 = 1
+        order by t.score desc
+        limit ?
+    )
+ [42102-200]
+2024-05-10 18:04:04 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "spider_task" not found; SQL statement:
+    select t1.* from `spider_task` t1
+    where id in (
+        select t.id
+        from `spider_task` t
+        where
+            1 = 1
+        order by t.score desc
+        limit ?
+    )
+ [42102-200]
+2024-05-10 18:04:09 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "spider_task" not found; SQL statement:
+select count(*) from spider_task s1_0 [42102-200]
+2024-05-10 18:04:09 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "spider_task" not found; SQL statement:
+    select t1.* from `spider_task` t1
+    where id in (
+        select t.id
+        from `spider_task` t
+        where
+            1 = 1
+        order by t.score desc
+        limit ?
+    )
+ [42102-200]

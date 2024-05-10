@@ -1,0 +1,75 @@
+server:
+  port: 8080
+spring:
+  main:
+    # 允许循环依赖
+    allow-circular-references: true
+  application:
+    name: search-spider
+  profiles:
+    active: dev
+  thymeleaf:
+    cache: false
+  jackson:
+    time-zone: GMT+8
+    property-naming-strategy: SNAKE_CASE
+    default-property-inclusion: NON_NULL
+    date-format: com.fasterxml.jackson.databind.util.StdDateFormat
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    open-in-view: false
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    driver-class-name: org.h2.Driver
+    username: admin
+    password: 123456
+    url: jdbc:h2:file:${file.config.db-dir}\spider;MODE=MySQL;DATABASE_TO_LOWER=TRUE;AUTO_SERVER=TRUE
+#    url: jdbc:h2:file:D:\github\spider\src\dist\config\spider;MODE=MySQL;DATABASE_TO_LOWER=TRUE;AUTO_SERVER=TRUE
+    hikari:
+      connection-timeout: 10000
+      validation-timeout: 3000
+      idle-timeout: 60000
+      login-timeout: 5
+      max-lifetime: 100000
+      maximum-pool-size: 100
+      minimum-idle: 5
+      read-only: false
+  sql:
+    init:
+      schema-locations: classpath:sql/init.sql
+      mode: never
+  http:
+    connect-time-out: 6
+    read-time-out: 6
+    write-time-out: 6
+    max-connection: 1000
+    max-request: 1000
+    max-per-host-request: 30
+resilience4j.retry:
+  instances:
+    retry-backend:
+      # 重试次数
+      max-attempts: 5
+      # 下一次重试等待时长
+      wait-duration: 1100
+      retry-exceptions:
+        # 需要重试的异常
+        - java.net.SocketTimeoutException
+        - java.io.IOException
+logging:
+  file:
+    path: ${file.config.log-dir}/${spring.application.name}
+  level:
+    org: warn
+    org.hibernate.engine.jdbc.spi: off
+    com: warn
+    i: warn
+    io: warn
+    reactor: warn
+    com.zsh: debug
+    okhttp3:
+      OkHttpClient: error
+  logback:
+    rollingpolicy:
+      max-file-size: 100MB
+      max-history: 30
